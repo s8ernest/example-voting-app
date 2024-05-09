@@ -59,8 +59,8 @@ pipeline {
                         def voteImageName = "${params.REPO_NAME}/vote:${params.VOTE_TAG_NAME}"
                         def workerImageName = "${params.REPO_NAME}/worker:${params.WORKER_TAG_NAME}"
                         
-                        // Login to Docker Hub
-                        sh "docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD --password-stdin"
+                        // Login to Docker Hub using --password-stdin
+                        sh "echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin"
 
                         // Push Docker images
                         sh "docker push ${resultImageName}"
