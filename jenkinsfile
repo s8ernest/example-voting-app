@@ -1,0 +1,72 @@
+pipeline {
+    agent any
+
+    parameters {
+        string(name: 'REPO_NAME', defaultValue: 's8ernest/s8ernest', description: 'Name of the repository')
+        string(name: 'RESULT_TAG_NAME', defaultValue: 'Result', description: 'Tag name for the result Docker image')
+        string(name: 'VOTE_TAG_NAME', defaultValue: 'Vote', description: 'Tag name for the vote Docker image')
+        string(name: 'WORKER_TAG_NAME', defaultValue: 'Worker', description: 'Tag name for the worker Docker image')
+    }
+
+    stages {
+        stage('Clone Repository') {
+            steps {
+                script {
+                    // Clean workspace before cloning
+                    deleteDir()
+
+                    // Git clone with SSH key
+                    checkout([$class: 'GitSCM', 
+                        branches: [[name: 'main']], 
+                        userRemoteConfigs: [[url: 'git@github.com:s8ernest/example-voting-app.git', 
+                        credentialsId: 'jenkins-ssh-agents-private-key']]])
+                }
+            }
+        }
+
+        stage('Build vote Docker Image') {
+            steps {
+                script {
+                    def imageName = "${params.REPO_NAME}/vote:${params.VOTE_TAG_NAME}"
+                    sh "docker build -t ${imageName} -f vote/Dockerfile vote/"
+                }
+            }
+        }
+
+        stage('Build worker Docker Image') {
+            steps {
+                script {
+                    def imageName = "${params.REPO_NAME}/worker:${params.WORKER_TAG_NAME}"
+                    sh "docker build -t ${imageName} -f worker/Dockerfile worker/"
+                }
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    def imageName = "${params.REPO_NAME}:${params.RESULT_TAG_NAME}"
+                    sh "docker build -t ${imageName} result/"
+                }
+            }
+        }
+
+        stage('Push Docker Image') {
+            steps {
+                script {
+                    def resultImageName = "${params.REPO_NAME}:${params.RESULT_TAG_NAME}"
+                    def voteImageName = "${params.REPO_NAME}/vote:${params.VOTE_TAG_NAME}"
+                    def workerImageName = "${params.REPO_NAME}/worker:${params.WORKER_TAG_NAME}"
+                    def dockerHubCreds = credentials('ernest-dockerhub')
+                    sh "echo ${dockerHubCreds.password} | docker login -u ${dockerHubCreds.username} --password-stdin && docker push ${resultImageName} && docker push ${voteImageName} && docker push ${workerImageName}"
+                }
+            }
+        }
+
+        stage('Build Docker Compose') {
+            steps {
+                sh 'docker-compose -f docker-compose.yml build'
+            }
+        }
+    }
+}
