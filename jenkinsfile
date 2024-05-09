@@ -78,11 +78,11 @@ pipeline {
         }
     }
 
-    stage('List Docker Containers') {
-        steps {
-            script {
+        stage('List Docker Containers') {
+            steps {
+                script {
                 // List Docker containers
-                sh 'docker ps'
+                    sh 'docker ps'
             }
         }
     }
