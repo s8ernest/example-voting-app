@@ -53,11 +53,11 @@ pipeline {
 
         stage('Push Docker Image') {
             steps {
-                withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'credential-auth-hub', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD']]) {
+                withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'ernest-dockerhub', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD']]) {
                     script {
                         def resultImageName = "${params.REPO_NAME}:${params.RESULT_TAG_NAME}"
-                        def voteImageName = "${params.REPO_NAME}/vote:${params.VOTE_TAG_NAME}"
-                        def workerImageName = "${params.REPO_NAME}/worker:${params.WORKER_TAG_NAME}"
+                        def voteImageName = "${params.REPO_NAME}:${params.VOTE_TAG_NAME}"
+                        def workerImageName = "${params.REPO_NAME}:${params.WORKER_TAG_NAME}"
                         
                         // Login to Docker Hub using --password-stdin
                         sh "echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin"
