@@ -80,7 +80,10 @@ pipeline {
 
     stage('List Docker Containers') {
         steps {
-            sh 'docker ps'
+            script {
+                // List Docker containers
+                sh 'docker ps'
+            }
         }
     }
 }
