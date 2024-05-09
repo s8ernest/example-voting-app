@@ -76,7 +76,7 @@ pipeline {
                 sh 'docker-compose -f docker-compose.yml build'
             }
         }
-    }
+    
 
         stage('List Docker Containers') {
             steps {
