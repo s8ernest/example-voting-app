@@ -57,7 +57,7 @@ pipeline {
                     def resultImageName = "${params.REPO_NAME}:${params.RESULT_TAG_NAME}"
                     def voteImageName = "${params.REPO_NAME}/vote:${params.VOTE_TAG_NAME}"
                     def workerImageName = "${params.REPO_NAME}/worker:${params.WORKER_TAG_NAME}"
-                    def dockerHubCreds = credentials('ernest-dockerhub')
+                    def dockerHubCreds = credentials('credential-auth-hub')
                     sh "docker login -u ${dockerHubCreds.username} -p ${dockerHubCreds.password}"
                     sh "docker push ${resultImageName}"
                     sh "docker push ${voteImageName}"
