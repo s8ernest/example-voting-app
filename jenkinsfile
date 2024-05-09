@@ -27,7 +27,7 @@ pipeline {
         stage('Build vote Docker Image') {
             steps {
                 script {
-                    def imageName = "${params.REPO_NAME}/vote:${params.VOTE_TAG_NAME}"
+                    def imageName = "${params.REPO_NAME}:${params.VOTE_TAG_NAME}"
                     sh "docker build -t ${imageName} -f vote/Dockerfile vote/"
                 }
             }
@@ -36,7 +36,7 @@ pipeline {
         stage('Build worker Docker Image') {
             steps {
                 script {
-                    def imageName = "${params.REPO_NAME}/worker:${params.WORKER_TAG_NAME}"
+                    def imageName = "${params.REPO_NAME}:${params.WORKER_TAG_NAME}"
                     sh "docker build -t ${imageName} -f worker/Dockerfile worker/"
                 }
             }
@@ -55,10 +55,14 @@ pipeline {
             steps {
                 script {
                     def resultImageName = "${params.REPO_NAME}:${params.RESULT_TAG_NAME}"
-                    def voteImageName = "${params.REPO_NAME}/vote:${params.VOTE_TAG_NAME}"
-                    def workerImageName = "${params.REPO_NAME}/worker:${params.WORKER_TAG_NAME}"
+                    def voteImageName = "${params.REPO_NAME}:${params.VOTE_TAG_NAME}"
+                    def workerImageName = "${params.REPO_NAME}:${params.WORKER_TAG_NAME}"
                     def dockerHubCreds = credentials('credential-auth-hub')
-                    sh "docker login -u ${dockerHubCreds.username} -p ${dockerHubCreds.password}"
+
+                    // Login to Docker Hub using echo and --password-stdin
+                    sh "echo ${dockerHubCreds.password} | docker login -u ${dockerHubCreds.username} --password-stdin"
+
+                    // Push Docker images
                     sh "docker push ${resultImageName}"
                     sh "docker push ${voteImageName}"
                     sh "docker push ${workerImageName}"
