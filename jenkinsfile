@@ -60,7 +60,7 @@ pipeline {
                         def workerImageName = "${params.REPO_NAME}/worker:${params.WORKER_TAG_NAME}"
                         
                         // Login to Docker Hub
-                        sh "docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD"
+                        sh "docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD --password-stdin"
 
                         // Push Docker images
                         sh "docker push ${resultImageName}"
